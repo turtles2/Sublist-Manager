@@ -30,21 +30,3 @@ Route::get('/home', 'HomeController@index');
 Route::get('/newaccount', 'AccountController@newaccount');
 Route::post('/newaccount', 'AccountController@storenewaccount');
 
-Route::get('/test', function () {
-   $crawler = Goutte::request('GET', 'http://www.sublistonline.com');
-   
-   $form = $crawler->selectButton('Log in')->form();
-   $crawler = Goutte::submit($form, array('uname' => 'danwaldron', 'pw' => 'danny9910'));
-   
-   $message = $crawler->filterXPath('//body/table')->text();
-   
-   if(str_contains($message, 'You are not logged in')){
-       echo 'Loged out';
-   }elseif(str_contains($message, 'You are logged in as')){
-       echo 'Log in';
-   }else{
-       echo 'fail';
-   }
-
-  dump($message);
-});

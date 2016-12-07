@@ -2,6 +2,12 @@
 
 namespace App\Console;
 
+use App\Accounts;
+
+use App\Contacts;
+
+use App\helpers;
+
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -24,8 +30,40 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->call(function () {
+           
+           $accounts = Accounts::all();
+           
+           foreach($accounts as $account){
+               
+               $contacts = helpers::get_contacts($account['username'],$account['password']);
+               
+               $managers = $contacts['managers'];
+               $employes = $contacts['employee'];
+               
+               foreach($managers as $manager){
+                   
+                Contacts::updateOrCreate(
+                ['fname' => $manager['First Name'], 'join_date' => $manager['Join Date'], 'account_id' => $account['id']],
+                ['lname' => $manager['Last Name'], 'phone' => $manager['Phone'], 'email' => $manager['Email'], 
+                'status' => 1, 'manager' => true]
+                );
+
+               }
+               
+                foreach($employes as $employe){
+                   
+                Contacts::updateOrCreate(
+                ['fname' => $employe['First Name'], 'join_date' => $employe['Join Date'], 'account_id' => $account['id']],
+                ['lname' => $employe['Last Name'], 'phone' => $employe['Phone'], 'email' => $employe['Email'], 
+                'status' => 1, 'manager' => false]
+                );
+
+               }
+        
+           }
+           
+        })->everyThirtyMinutes()->name('Contacts');
     }
 
     /**

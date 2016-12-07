@@ -14,14 +14,20 @@ class Accounts extends Model
         'username', 'password','employer','user_id'
     ];
     
-           public function setusernameAttribute($value)
+    
+    public function user()
     {
-        $this->attributes['username'] = Crypt::encrypt($value);
+        return $this->belongsTo('App\User','user_id','id');
     }
     
-      public function user()
+    public function Contacts()
     {
-        return $this->belongsTo('App\Models\User','user_id','id');
+        return $this->hasMany('App\Contacts','account_id','id');
+    }
+    
+    public function setusernameAttribute($value)
+    {
+        $this->attributes['username'] = Crypt::encrypt($value);
     }
     
     public function setpasswordAttribute($value)
