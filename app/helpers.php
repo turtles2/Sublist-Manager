@@ -352,12 +352,11 @@ class helpers
                 
                 $date = Carbon::now()->toDateString();    
                 
-                 Sub_Shifts::firstOrCreate([
+                 Sub_Shifts::updateOrCreate([
                      'starts' => $start,
                      'ends' => $end,
                      'code' => $takenshift['code'],
                      'poster' => $poster['id'],
-                     'posted' => $date
                      ],
                      [
                      'covered' => $taker['id'],

@@ -17,7 +17,7 @@ class CreateSubShiftsTable extends Migration
             $table->increments('id');
             $table->dateTime('starts');	
             $table->dateTime('ends');
-            $table->date('posted');
+            $table->date('posted')->nullable();
             $table->date('taken')->nullable();
             $table->smallInteger('code');	
             $table->integer('poster')->unsigned();
@@ -35,6 +35,6 @@ class CreateSubShiftsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('contacts');
+        Schema::drop('sub_shifts');
     }
 }
