@@ -64,6 +64,20 @@ class Kernel extends ConsoleKernel
            }
            
         })->everyThirtyMinutes()->name('Contacts');
+        
+        $schedule->call(function () {
+           
+           $accounts = Accounts::all();
+           
+           $months = array(-1,0,1,2,3); // Gets shifts for the last month as well as the next 3
+           
+           foreach($accounts as $account){
+               
+                helpers::enter_shifts($account['username'],$account['password'],$months,$account['id']); 
+        
+           }
+           
+        })->everyTenMinutes()->name('Shifts');
     }
 
     /**

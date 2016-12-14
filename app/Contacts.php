@@ -23,4 +23,14 @@ class Contacts extends Model
     {
         $this->attributes['phone'] = helpers::normalize_phone($value);
     }
+    
+    public function listed_shifts()
+    {
+        return $this->hasMany('App\Sub_Shifts','poster','id');
+    }
+    
+    public function taken_shifts()
+    {
+        return $this->hasMany('App\Sub_Shifts','covered','id');
+    }
 }

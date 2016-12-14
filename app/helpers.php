@@ -3,8 +3,47 @@ namespace App;
 
 use Goutte;
 
+use App\Sub_Shifts;
+
+use Carbon\Carbon;
+
+use App\Contacts;
+
 class helpers
 {
+   
+    protected static function login($username,$password,$url)
+    {
+        
+        $crawler = Goutte::request('GET', "$url");
+		   
+		   $form = $crawler->selectButton('Log in')->form();
+		   $crawler = Goutte::submit($form, array('uname' => "$username", 'pw' => "$password"));
+		   
+		   $message = $crawler->filterXPath('//body/table')->text();
+   
+       if(str_contains($message, 'You are not logged in')){
+       	
+       	// Will throw email in future
+       	
+       	Log::alert('Invalid Sublist Username and Password');
+           
+       }elseif(str_contains($message, 'You are logged in as')){
+           // Do nothing
+       }else{
+           abort(500,'Error loging into Sublist');
+       }
+       
+       return $crawler;
+        
+    }
+    
+       protected static function logout($crawler)
+    {
+        
+       $crawler = Goutte::click($crawler->selectLink('[ log out ]')->link());
+        
+    }
  
 		public static function normalize_phone($telephone_number)
     {
@@ -49,25 +88,8 @@ class helpers
     	public static function get_contacts($username,$password)
     {
     	
-		   $crawler = Goutte::request('GET', 'http://www.sublistonline.com');
-		   
-		   $form = $crawler->selectButton('Log in')->form();
-		   $crawler = Goutte::submit($form, array('uname' => "$username", 'pw' => "$password"));
-		   
-		   $message = $crawler->filterXPath('//body/table')->text();
-   
-       if(str_contains($message, 'You are not logged in')){
-       	
-       	// Will throw email in future
-       	
-       	Log::alert('Invalid Sublist Username and Password');
-           
-       }elseif(str_contains($message, 'You are logged in as')){
-           // Do nothing
-       }else{
-           abort(500,'Error loging into Sublist');
-       }
-		   
+    	   $crawler = helpers::login($username,$password,'http://www.sublistonline.com');
+    	
 		   $crawler = Goutte::click($crawler->selectLink('Contacts')->link());
 		   
 		   $lasttable = $crawler->filter('body > table')->last();
@@ -127,7 +149,228 @@ class helpers
     	"employee" => $empinfo,
     	);
 
+          helpers::logout($crawler); // Ends the Session
+
        return $results;
+    }
+    
+    	public static function get_shifts($username,$password,$month,$year)
+    {
+       
+       $url = 'https://www.sublistonline.com/list.php?month='."$month".'&year='."$year";
+       
+    	 $crawler = helpers::login("$username","$password","$url");
+		   
+		   $lasttable = $crawler->filter('body > table')->last();
+		   
+		   $datatable = $lasttable->filter('table > tr > td > table')->first();
+		   
+		   $opentable = $datatable->filter('table')->eq(1);
+		   
+		   $takentable = $datatable->filter('table')->eq(2);
+		   
+           $openshifts = array();
+           
+           $takenshifts = array();
+		   
+		   $openshifts = $opentable->filter('tr')->each(function ($node) {
+		      
+		         try{
+		      
+		        $day = $node->filter('td')->eq(0)->text();
+		        $poster = $node->filter('td')->eq(2)->text();
+		        $start = $node->filter('td')->eq(3)->text();
+		        $end = $node->filter('td')->eq(4)->text();
+		        $code = $node->filter('td')->eq(6)->text();
+		        $listed = $node->filter('td')->eq(7)->text();
+		        
+		        $shift = array(
+		            "day" => $day,
+		            "poster" => $poster,
+		            "start" => $start,
+		            "end" => $end,
+		            "code" => $code,
+		            "listed" => $listed,
+		            );
+
+		       
+		   }catch(\InvalidArgumentException $e) {
+		       
+		     $shift = false;
+		     
+             
+            }
+		            
+		       return $shift;
+		        
+          });
+          
+          $takenshifts = $takentable->filter('tr')->each(function ($node) {
+		      
+		          try {
+		      
+		        $day = $node->filter('td')->eq(0)->text();
+		        $poster = $node->filter('td')->eq(2)->text();
+		        $start = $node->filter('td')->eq(3)->text();
+		        $end = $node->filter('td')->eq(4)->text();
+		        $code = $node->filter('td')->eq(6)->text();
+		        $taken = $node->filter('td')->eq(7)->text();
+		        
+		        $shift = array(
+		            "day" => $day,
+		            "poster" => $poster,
+		            "start" => $start,
+		            "end" => $end,
+		            "code" => $code,
+		            "taken" => $taken,
+		            );
+		       
+          }catch(\InvalidArgumentException $e) {
+              
+            $shift = false;
+             
+            }
+		            
+		       return $shift;
+		        
+          });
+          
+        $results = array(
+            "open" => $openshifts,
+            "taken" => $takenshifts,
+            );
+            
+            helpers::logout($crawler); // Ends the Session
+            
+         return $results;
+		   
+    }
+    
+    	public static function enter_shifts($username,$password,$months,$accountid)
+    {
+       
+       foreach($months as $month_of_intrest){
+
+        $current = new Carbon(); 
+    
+        $intrest = $current->addMonth($month_of_intrest); 
+    
+        $year = $intrest->year;
+    
+        $month = Carbon::parse($intrest)->format('F');
+    
+        $shifts = helpers::get_shifts("$username","$password",$month,$year);
+        
+        if($shifts['open'] != false){
+            // There are open shifts 
+            
+            $openshifts = $shifts['open'];
+            
+            foreach($openshifts as $openshift){
+                
+                $starttimestring = $month .' '. $openshift['day'] .' '. $year .' ' . $openshift['start'];
+                
+                $endtimestring = $month .' '. $openshift['day'] .' '. $year .' ' . $openshift['end'];
+                
+                $start = Carbon::parse($starttimestring);
+                
+                $end = Carbon::parse($endtimestring);
+                
+                $daystart= strpos($openshift['listed'], '-');
+                
+                $day = trim(substr($openshift['listed'], $daystart +1));
+                
+                $nummonth = substr($openshift['listed'], 0,$daystart);
+                
+                $posted = $year. '-' . $nummonth . '-' . $day;
+                
+                $lnameend = strpos($openshift['poster'], ',');
+                
+                $fname = trim(substr($openshift['poster'], $lnameend +1));
+                
+                $lname = substr($openshift['poster'], 0,$lnameend);
+                
+                $poster = Contacts::where([
+                ['fname', $fname],
+                ['lname', $lname],
+                ['account_id', "$accountid"],
+                ])->firstorfail();
+                
+                 Sub_Shifts::firstOrCreate([
+                     'starts' => $start,
+                     'ends' => $end,
+                     'posted' => $posted,
+                     'code' => $openshift['code'],
+                     'poster' => $poster['id'],
+                     ]);
+                     
+            }
+            
+            
+        }else{
+            // No Open Shifts
+        }
+        
+        if($shifts['taken'] != false){
+            // There are taken shifts
+            
+            $takenshifts = $shifts['taken'];
+            
+            foreach($takenshifts as $takenshift){
+                
+                $starttimestring = $month .' '. $takenshift['day'] .' '. $year .' ' . $takenshift['start'];
+                
+                $endtimestring = $month .' '. $takenshift['day'] .' '. $year .' ' . $takenshift['end'];
+                
+                $start = Carbon::parse($starttimestring);
+                
+                $end = Carbon::parse($endtimestring);
+                
+                $lnameend = strpos($takenshift['poster'], ',');
+                
+                $fname = trim(substr($takenshift['poster'], $lnameend +1));
+                
+                $lname = substr($takenshift['poster'], 0,$lnameend);
+                
+                $tlnameend = strpos($takenshift['taken'], ',');
+                
+                $tfname = trim(substr($takenshift['taken'], $tlnameend +1));
+                
+                $tlname = substr($takenshift['taken'], 0,$tlnameend);
+                
+                $poster = Contacts::where([
+                ['fname', $fname],
+                ['lname', $lname],
+                ['account_id', "$accountid"],
+                ])->firstorfail();
+                
+                $taker = Contacts::where([
+                ['fname', $tfname],
+                ['lname', $tlname],
+                ['account_id', "$accountid"],
+                ])->firstorfail();
+                
+                $date = Carbon::now()->toDateString();    
+                
+                 Sub_Shifts::firstOrCreate([
+                     'starts' => $start,
+                     'ends' => $end,
+                     'code' => $takenshift['code'],
+                     'poster' => $poster['id'],
+                     'posted' => $date
+                     ],
+                     [
+                     'covered' => $taker['id'],
+                     'taken' => $date,
+                     ]);
+                     
+            }
+        }else{
+            // No taken shifts
+        }
+        
+    }
+		   
     }
     
 }
