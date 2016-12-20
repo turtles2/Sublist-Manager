@@ -29,3 +29,6 @@ Route::get('/home', 'HomeController@index');
 // Account Management Routes
 Route::get('/newaccount', 'AccountController@newaccount');
 Route::post('/newaccount', 'AccountController@storenewaccount');
+// Schedule Management Routes
+Route::get('/newschedule', 'ScheduleController@newschedule');
+Route::post('/newschedule', 'ScheduleController@storenewschedule');

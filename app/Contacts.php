@@ -33,4 +33,9 @@ class Contacts extends Model
     {
         return $this->hasMany('App\Sub_Shifts','covered','id');
     }
+    
+    public function shifts()
+    {
+        return $this->hasMany('App\Shifts','worker','id');
+    }
 }

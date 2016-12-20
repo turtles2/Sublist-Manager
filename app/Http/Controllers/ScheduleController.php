@@ -1,0 +1,321 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use Validator;
+
+use App\Http\Controllers\Controller;
+
+use Carbon\Carbon;
+
+use App\Shifts;
+
+use App\Contacts;
+
+use App\Accounts;
+
+use Auth;
+
+class ScheduleController extends Controller
+{
+     public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
+    public function newschedule()
+    {
+         return view('schedule.new');
+    }
+    
+    public function storenewschedule(Request $request)
+    {
+          $this->validate($request, [
+            'type' => 'required|in:Lifeguarding',
+            'schedule' => 'required|file',
+        ]);
+        
+        $filename = $request['schedule'];
+        
+        $lines = array();
+        
+        $file = fopen("$filename", 'r');
+        while (($line = fgetcsv($file)) !== FALSE) {
+          array_push($lines, $line);
+        }
+        fclose($file);
+        
+        end($lines[0]);
+        
+        $key = key($lines[0]);
+        
+        $columns = array();
+        
+        while($key >= 0){
+            
+            $columns[$key] = array();
+            
+            $key --;
+        }
+        
+        $columns = array_reverse($columns);
+        
+        foreach($lines as $line){
+            
+            foreach($line as $column => $value){
+                
+                array_push($columns[$column], $value);
+                
+            }
+        }
+        
+        $days = array();
+        
+        foreach($columns as $column){
+            
+            $lastrowkey = 0;
+            
+            $column = array_reverse($column);
+            
+            foreach($column as $rowkey => $row){
+                
+                if(str_contains($row, ['SUN', 'MON','TUES','WED','THU','FRI','SAT'])){
+                    
+                    if($lastrowkey == 0){
+                        $offset = 0;
+                    }else{
+                        $offset = $lastrowkey +1;
+                    }
+                    
+                    $length = $rowkey +2 - $offset;
+                    
+                    $lastrowkey = $rowkey;
+                    
+                    $day = array_slice($column, $offset,$length);
+                    
+                    
+                    // Clean Up to make each day uniform
+                    $pattern = '/\d{1,2}-\w{3}/';
+                    foreach($day as $daykey => $dayrow){
+                        
+                        if(empty($dayrow)){
+                            
+                            unset($day[$daykey]);
+                            
+                        } elseif(preg_match($pattern, $dayrow)){
+                            
+                            unset($day[$daykey]);
+                            
+                        }else{
+                            break;
+                        }
+                        
+                    }
+                    
+                     $day = array_reverse($day);
+                    
+                    array_push($days, $day);
+                    
+                }
+                
+                
+            }
+        }
+        
+        
+        $shifts = array();
+        
+        $current = new Carbon(); 
+        
+        $year = $current->year;
+        
+        foreach($days as $day){
+            
+            $date = $day[0];
+            
+              $daystart= strpos($date, '-');
+                
+                $month = trim(substr($date, $daystart +1));
+                
+                $calday = substr($date, 0,$daystart);
+                
+                $pattern = '/\d{1,2}(:\d{1,2}-\d{1,2}((\s|)[A,M,P]{2}|:\d{1,2}(\s|)[A,M,P]{2})|-\d{1,2}(:\d{1,2}(\s|)[A,M,P]{2}|(\s|)[A,M,P]{2}))/';
+                $daypattern = '/\d{1,2}-\w{3}/';
+                
+                foreach($day as $key => $row){
+                    
+                    if(preg_match($pattern, $row)){
+
+                        $lasttimerow = $key;
+                        
+                    }elseif(empty($row)){
+                        
+                    }elseif(preg_match($daypattern, $row)){
+                        
+                    }elseif(str_contains($row, ['SUN', 'MON','TUES','WED','THU','FRI','SAT'])){
+                        
+                    }else{
+                        // Row is not empty ,time, date or day meaning its a name
+                        $timepattern = '/[A,M,P]{2}/';
+                        
+                        $shifttime = $day[$lasttimerow];
+                        
+                        preg_match($timepattern, $shifttime,$matches);
+                        
+                        $timeofday = $matches[0];
+                        
+                        $shifttime = preg_replace($timepattern, '', $shifttime);
+                        
+                        $endtimestart = strpos($shifttime, '-');
+                        
+                        $start = substr($shifttime, 0,$endtimestart);
+                        
+                        $end = trim(substr($shifttime, $endtimestart +1));
+                        
+                        $endtime = $end . ' ' . $timeofday;
+                        
+                        if($timeofday == 'AM'){
+                            
+                            $starttime = $start . ' ' . $timeofday;
+                            
+                        }elseif($timeofday == 'PM'){
+                            
+                            $hour = $start;
+                            
+                            $endhour = $end;
+                            
+                            if(str_contains($start,':')){
+                                
+                                $minstart = strpos($start, ':');
+                                
+                                $hour =  substr($start, 0,$minstart);
+                                
+                            }
+                            
+                            if(str_contains($end,':')){
+                                
+                                $minstart = strpos($end, ':');
+                                
+                                $endhour =  substr($end, 0,$minstart);
+                                
+                            }
+                            
+                            if($hour +12 > $endhour + 12){
+                                
+                                $starttime = $start . ' AM';
+                                
+                            }elseif($hour +12 < $endhour + 12){
+                                
+                                $starttime = $start . ' PM';
+                                
+                            }else{
+                                
+                                echo 'Time Error';
+                                
+                            }
+                            
+                            
+                        }
+                        
+                        $nametime = '/.{1,}\s(\d{1,2}:\d{1,2})/';
+                        
+                        if(preg_match($nametime, $row,$matches)){
+                            
+                            $endtime = $matches[1] . ' ' . $timeofday; 
+                            
+                            $row = preg_replace('/\d{1,2}:\d{1,2}/', '', $row);
+                            
+                        }
+                        
+                        $starttimestring = $month .' '. $calday.' '. $year .' ' . $starttime;
+                
+                        $endtimestring = $month .' '. $calday.' '. $year .' ' . $endtime;
+                
+                        $shiftstart = Carbon::parse($starttimestring);
+                        
+                        $shiftend = Carbon::parse($endtimestring);
+                        
+                        if($shiftend->isPast()){
+                            
+                            // Assume all shifts are in future so a year must be added to make that so
+                            
+                            $shiftend = $shiftend->addYear();
+                            
+                        }
+                        
+                        if($shiftstart->isPast()){
+                            
+                            // Assume all shifts are in future so a year must be added to make that so
+                            
+                            $shiftstart = $shiftstart->addYear();
+                            
+                        }
+                        
+                        $shift = array(
+                            "worker" => $row,
+                            "start" => $shiftstart,
+                            "end" => $shiftend,
+                            );
+                            
+                        array_push($shifts, $shift);
+                        
+                    }
+                    
+                }
+            
+        }
+        
+        $userid = Auth::user()->id;
+        
+        $account = Accounts::where([
+                    ['user_id', "$userid"],
+                    ])->firstorfail();
+                    
+        $accountid = $account['id'];
+        
+        foreach($shifts as $shift){
+            
+            $fname = trim($shift['worker']);
+            
+            $worker = Contacts::where([
+                    ['fname', "$fname"],
+                    ['account_id', "$accountid"],
+                    ])->first();
+                    
+            if(empty($worker)){
+                
+                // Using Like to get a result 
+                
+                $likefname = '%'. $fname .'%';
+                
+                 $worker = Contacts::where([
+                    ['fname', 'like', "$likefname"],
+                    ['account_id', "$accountid"],
+                    ])->first();
+                
+            }
+            
+            if(empty($worker)){
+                
+                // Don't enter shift as it is lacking a known worker 
+                
+            }else{
+                // Enter Shift
+                
+                Shifts::firstOrCreate([
+                     'starts' => $shift['start'],
+                     'ends' => $shift['end'],
+                     'code' => 0,
+                     'worker' => $worker['id'],
+                     ]);
+            
+            }
+                    
+        }
+        
+        return redirect("/");
+        
+    }
+}
