@@ -9,6 +9,12 @@ use Carbon\Carbon;
 
 use App\Contacts;
 
+use App\Notifications\NewShift;
+
+use App\Accounts;
+
+use App\User;
+
 class helpers
 {
    
@@ -194,12 +200,11 @@ class helpers
 		            );
 
 		       
-		   }catch(\InvalidArgumentException $e) {
+		  }catch(\InvalidArgumentException $e) {
 		       
-		     $shift = false;
-		     
+		    $shift = false;
              
-            }
+       }
 		            
 		       return $shift;
 		        
@@ -230,7 +235,7 @@ class helpers
             $shift = false;
              
             }
-		            
+	            
 		       return $shift;
 		        
           });
@@ -249,6 +254,12 @@ class helpers
     	public static function enter_shifts($username,$password,$months,$accountid)
     {
        
+       $account = Accounts::find($accountid);
+       
+       $userid = $account->user->id;
+       
+       $user = User::find($userid);
+       
        foreach($months as $month_of_intrest){
 
         $current = new Carbon(); 
@@ -261,7 +272,19 @@ class helpers
     
         $shifts = helpers::get_shifts("$username","$password",$month,$year);
         
-        if($shifts['open'] != false){
+        
+        if(isset($shifts['open']['0']['listed'])){
+           
+           $listed = $shifts['open']['0']['listed'];
+           
+        }else{
+           
+           $listed = NULL;
+           
+        }
+       
+        
+        if($shifts['open'] != false and str_contains($listed,'-')){
             // There are open shifts 
             
             $openshifts = $shifts['open'];
@@ -296,7 +319,7 @@ class helpers
                 ['account_id', "$accountid"],
                 ])->firstorfail();
                 
-                 Sub_Shifts::firstOrCreate([
+                 $shift = Sub_Shifts::firstOrCreate([
                      'starts' => $start,
                      'ends' => $end,
                      'posted' => $posted,
@@ -304,11 +327,76 @@ class helpers
                      'poster' => $poster['id'],
                      ]);
                      
+                 $created = Carbon::parse($shift['created_at']);
+                 
+                 if($current->lte($created)){
+                    
+                    Notification::send($user, new NewShift($shift));
+                    
+                 }
+                     
             }
             
             
+        }elseif($shifts['open'] != false){
+           
+           // In Case of Shift read error
+           
+             $takenshifts = $shifts['open'];
+            
+            foreach($takenshifts as $takenshift){
+                
+                $starttimestring = $month .' '. $takenshift['day'] .' '. $year .' ' . $takenshift['start'];
+                
+                $endtimestring = $month .' '. $takenshift['day'] .' '. $year .' ' . $takenshift['end'];
+                
+                $start = Carbon::parse($starttimestring);
+                
+                $end = Carbon::parse($endtimestring);
+                
+                $lnameend = strpos($takenshift['poster'], ',');
+                
+                $fname = trim(substr($takenshift['poster'], $lnameend +1));
+                
+                $lname = substr($takenshift['poster'], 0,$lnameend);
+                
+                $tlnameend = strpos($takenshift['listed'], ',');
+                
+                $tfname = trim(substr($takenshift['listed'], $tlnameend +1));
+                
+                $tlname = substr($takenshift['listed'], 0,$tlnameend);
+                
+                $poster = Contacts::where([
+                ['fname', $fname],
+                ['lname', $lname],
+                ['account_id', "$accountid"],
+                ])->firstorfail();
+                
+                $taker = Contacts::where([
+                ['fname', $tfname],
+                ['lname', $tlname],
+                ['account_id', "$accountid"],
+                ])->firstorfail();
+                
+                $date = Carbon::now()->toDateString();    
+                
+                 Sub_Shifts::updateOrCreate([
+                     'starts' => $start,
+                     'ends' => $end,
+                     'code' => $takenshift['code'],
+                     'poster' => $poster['id'],
+                     ],
+                     [
+                     'covered' => $taker['id'],
+                     'taken' => $date,
+                     ]);
+                     
+            }
+            
         }else{
-            // No Open Shifts
+           
+           // No Open Shifts
+           
         }
         
         if($shifts['taken'] != false){

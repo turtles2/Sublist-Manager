@@ -31,4 +31,6 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Accounts','user_id','id');
     }
+    
+    
 }

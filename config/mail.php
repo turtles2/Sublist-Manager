@@ -56,8 +56,8 @@ return [
     */
 
     'from' => [
-        'address' => 'hello@example.com',
-        'name' => 'Example',
+        'address' => 'noreply@sublistemail.oaknetwireless.com',
+        'name' => 'Sublist Manager',
     ],
 
     /*
