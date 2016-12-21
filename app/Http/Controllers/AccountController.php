@@ -64,6 +64,8 @@ class AccountController extends Controller
            abort(500,'Error loging into Sublist');
        }
        
+       $crawler = Goutte::click($crawler->selectLink('[ log out ]')->link());
+       
        $userid = Auth::user()->id;
        
          $account = Accounts::create([
