@@ -9,7 +9,7 @@ class Sub_Shifts extends Model
      public $table = "sub_shifts";
     
      protected $fillable = [
-         'starts','ends','posted','taken','code','poster','covered'
+         'starts','ends','posted','taken','code','poster','covered','sync'
     ];
     
         public function poster()

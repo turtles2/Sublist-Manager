@@ -32,3 +32,6 @@ Route::post('/newaccount', 'AccountController@storenewaccount');
 // Schedule Management Routes
 Route::get('/newschedule', 'ScheduleController@newschedule');
 Route::post('/newschedule', 'ScheduleController@storenewschedule');
+Route::get('/syncgoogle', 'ScheduleController@syncgoogle');
+Route::post('/syncgoogle', 'ScheduleController@redirectToProvider');
+Route::get('/google', 'ScheduleController@handleProviderCallback');

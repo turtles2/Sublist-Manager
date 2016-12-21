@@ -178,6 +178,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Weidner\Goutte\GoutteServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
     ],
 
     /*
@@ -228,6 +229,7 @@ return [
         'Goutte' => Weidner\Goutte\GoutteFacade::class,
         'Helper' => App\helpers::class,
         'Carbon' => Carbon\Carbon::class,
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 
     ],
 

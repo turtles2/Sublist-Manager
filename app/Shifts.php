@@ -9,7 +9,7 @@ class Shifts extends Model
      public $table = "shifts";
     
      protected $fillable = [
-         'starts','ends','worker','code'
+         'starts','ends','worker','code','sync'
     ];
     
         public function worker()

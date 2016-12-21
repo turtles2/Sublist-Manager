@@ -12,11 +12,21 @@ use Carbon\Carbon;
 
 use App\Shifts;
 
+use App\Sub_Shifts;
+
 use App\Contacts;
 
 use App\Accounts;
 
 use Auth;
+
+use Socialite;
+
+use Google_Client;
+
+use Google_Service_Calendar;
+
+use Google_Service_Calendar_Event;
 
 class ScheduleController extends Controller
 {
@@ -317,5 +327,289 @@ class ScheduleController extends Controller
         
         return redirect("/");
         
+    }
+    
+     public function redirectToProvider(Request $request)
+    {
+        
+        $this->validate($request, [
+            'sync' => 'required|in:Sync Sub Shifts,Sync Regular Shifts,Sync All Shifts',
+        ]);
+        
+        $sync = $request['sync'];
+        
+        session(['sync' => "$sync"]);
+        
+        return Socialite::driver('google')->redirect();
+    }
+
+    /**
+     * Obtain the user information from GitHub.
+     *
+     * @return Response
+     */
+    public function handleProviderCallback(Request $request)
+    {
+        
+        $sync = $request->session()->pull('sync');
+        
+        $user = Socialite::driver('google')->user();
+        
+        $userid = Auth::user()->id;
+        
+        $account = Accounts::where([
+                    ['user_id', "$userid"],
+                    ])->firstorfail();
+                    
+        $email = Auth::user()->email;
+        
+        $accountid = $account['id'];
+        
+        $worker = Contacts::where([
+                    ['email', "$email"],
+                    ['account_id', "$accountid"],
+                    ])->first();
+                    
+        $workerid = $worker['id'];
+        
+        $client = new Google_Client();
+        
+        $accessToken = $user->token;
+        
+        $client->setAccessToken([
+          'access_token' => $accessToken,
+          'expires_in'   => 3600,
+          'created'      => time(),
+        ]);
+
+        $service = new Google_Service_Calendar($client);
+        
+        $calendarId = 'primary';
+        
+        $address = env('ADDRESS');
+        
+        $timezone = config('app.timezone');
+        
+        
+        if($sync == 'Sync Sub Shifts'){
+            
+            $shifts = Sub_Shifts::where([
+                    ['sync', false],
+                    ['covered', "$workerid"],])->get();
+                    
+            foreach($shifts as $shift){
+                
+                if($shift->code == 0 or $shift->code == 3){
+                    
+                    $event = 'Lifeguarding Shift';
+                    
+                }elseif($shift->code == 1){
+                    
+                    $event = 'Swim Instructor Shift';
+                    
+                }else{
+                    
+                    $event = 'Shift';
+                    
+                }
+                
+                $start = Carbon::parse($shift->starts);
+                
+                $end = Carbon::parse($shift->ends);
+                
+                $start = $start->toIso8601String();
+                
+                $end = $end->toIso8601String();
+                
+                $event = new Google_Service_Calendar_Event(array(
+                  'summary' => $event,
+                  'location' => $address,
+                  'description' => 'Shift Created by Sublist Manager',
+                  'start' => array(
+                    'dateTime' => $start,
+                    'timeZone' => $timezone,
+                  ),
+                  'end' => array(
+                    'dateTime' => $end,
+                    'timeZone' => $timezone,
+                  ),
+                   ));
+                   
+                $event = $service->events->insert($calendarId, $event);
+                
+            }
+            
+            Sub_Shifts::where([
+                    ['sync', false],
+                    ['covered', "$workerid"],])->update(['sync' => true]);
+                    
+            
+        }elseif($sync == 'Sync Regular Shifts'){
+            
+            $shifts = Shifts::where([
+                    ['sync', false],
+                    ['worker', "$workerid"],])->get();
+                    
+            foreach($shifts as $shift){
+                
+                if($shift->code == 0 or $shift->code == 3){
+                    
+                    $event = 'Lifeguarding Shift';
+                    
+                }elseif($shift->code == 1){
+                    
+                    $event = 'Swim Instructor Shift';
+                    
+                }else{
+                    
+                    $event = 'Shift';
+                    
+                }
+                
+                $start = Carbon::parse($shift->starts);
+                
+                $end = Carbon::parse($shift->ends);
+                
+                $start = $start->toIso8601String();
+                
+                $end = $end->toIso8601String();
+                
+                $event = new Google_Service_Calendar_Event(array(
+                  'summary' => $event,
+                  'location' => $address,
+                  'description' => 'Shift Created by Sublist Manager',
+                  'start' => array(
+                    'dateTime' => $start,
+                    'timeZone' => $timezone,
+                  ),
+                  'end' => array(
+                    'dateTime' => $end,
+                    'timeZone' => $timezone,
+                  ),
+                   ));
+                   
+                $event = $service->events->insert($calendarId, $event);
+                
+            }
+            
+            Shifts::where([
+                    ['sync', false],
+                    ['worker', "$workerid"],])->update(['sync' => true]);
+            
+        }elseif($sync == 'Sync All Shifts'){
+            
+            $shifts = Shifts::where([
+                    ['sync', false],
+                    ['worker', "$workerid"],])->get();
+                    
+            foreach($shifts as $shift){
+                
+                if($shift->code == 0 or $shift->code == 3){
+                    
+                    $event = 'Lifeguarding Shift';
+                    
+                }elseif($shift->code == 1){
+                    
+                    $event = 'Swim Instructor Shift';
+                    
+                }else{
+                    
+                    $event = 'Shift';
+                    
+                }
+                
+                $start = Carbon::parse($shift->starts);
+                
+                $end = Carbon::parse($shift->ends);
+                
+                $start = $start->toIso8601String();
+                
+                $end = $end->toIso8601String();
+                
+                $event = new Google_Service_Calendar_Event(array(
+                  'summary' => $event,
+                  'location' => $address,
+                  'description' => 'Shift Created by Sublist Manager',
+                  'start' => array(
+                    'dateTime' => $start,
+                    'timeZone' => $timezone,
+                  ),
+                  'end' => array(
+                    'dateTime' => $end,
+                    'timeZone' => $timezone,
+                  ),
+                   ));
+                   
+                $event = $service->events->insert($calendarId, $event);
+                
+            }
+            
+            Shifts::where([
+                    ['sync', false],
+                    ['worker', "$workerid"],])->update(['sync' => true]);
+                    
+            $shifts = Sub_Shifts::where([
+                    ['sync', false],
+                    ['covered', "$workerid"],])->get();
+                    
+            foreach($shifts as $shift){
+                
+                if($shift->code == 0 or $shift->code == 3){
+                    
+                    $event = 'Lifeguarding Shift';
+                    
+                }elseif($shift->code == 1){
+                    
+                    $event = 'Swim Instructor Shift';
+                    
+                }else{
+                    
+                    $event = 'Shift';
+                    
+                }
+                
+                $start = Carbon::parse($shift->starts);
+                
+                $end = Carbon::parse($shift->ends);
+                
+                $start = $start->toIso8601String();
+                
+                $end = $end->toIso8601String();
+                
+                $event = new Google_Service_Calendar_Event(array(
+                  'summary' => $event,
+                  'location' => $address,
+                  'description' => 'Shift Created by Sublist Manager',
+                  'start' => array(
+                    'dateTime' => $start,
+                    'timeZone' => $timezone,
+                  ),
+                  'end' => array(
+                    'dateTime' => $end,
+                    'timeZone' => $timezone,
+                  ),
+                   ));
+                   
+                $event = $service->events->insert($calendarId, $event);
+                
+            }
+            
+            Sub_Shifts::where([
+                    ['sync', false],
+                    ['covered', "$workerid"],])->update(['sync' => true]);
+            
+        }else{
+            
+            abort(404);
+
+        }
+        
+        return redirect("/");
+
+    }
+    
+    public function syncgoogle()
+    {
+         return view('schedule.syncgoogle');
     }
 }
