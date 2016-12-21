@@ -14,6 +14,10 @@ use App\Accounts;
 
 use Auth;
 
+use App\Contacts;
+
+use App\helpers;
+
 class AccountController extends Controller
 {
     
@@ -62,12 +66,37 @@ class AccountController extends Controller
        
        $userid = Auth::user()->id;
        
-         Accounts::create([
+         $account = Accounts::create([
             'username' => $username,
             'password' => $password,
             'employer' => $request['employer'],
             'user_id' => $userid,
         ]);
+        
+        $contacts = helpers::get_contacts($account['username'],$account['password']);
+               
+               $managers = $contacts['managers'];
+               $employes = $contacts['employee'];
+               
+               foreach($managers as $manager){
+                   
+                Contacts::updateOrCreate(
+                ['fname' => $manager['First Name'], 'join_date' => $manager['Join Date'], 'account_id' => $account['id']],
+                ['lname' => $manager['Last Name'], 'phone' => $manager['Phone'], 'email' => $manager['Email'], 
+                'status' => 1, 'manager' => true]
+                );
+
+               }
+               
+                foreach($employes as $employe){
+                   
+                Contacts::updateOrCreate(
+                ['fname' => $employe['First Name'], 'join_date' => $employe['Join Date'], 'account_id' => $account['id']],
+                ['lname' => $employe['Last Name'], 'phone' => $employe['Phone'], 'email' => $employe['Email'], 
+                'status' => 1, 'manager' => false]
+                );
+
+               }
         
         return redirect("/");
       
