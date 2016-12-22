@@ -331,7 +331,11 @@ class helpers
                  
                  if($current->lte($created)){
                     
-                    Notification::send($user, new NewShift($shift));
+                    if($user['auto_email'] == true){
+                    
+                       Notification::send($user, new NewShift($shift));
+                    
+                    }
                     
                  }
                      
