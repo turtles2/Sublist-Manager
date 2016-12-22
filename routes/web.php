@@ -25,6 +25,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index');
+Route::get('/delete', 'HomeController@delete');
+Route::post('/delete', 'HomeController@storedelete');
 
 // Account Management Routes
 Route::get('/newaccount', 'AccountController@newaccount');

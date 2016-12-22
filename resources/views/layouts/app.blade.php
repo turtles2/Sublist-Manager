@@ -49,7 +49,7 @@
                             <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account Management<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/newaccount">Add New Account</a></li>
+            <li><a href="/newaccount">Add New Sublist Account</a></li>
           </ul>
         </li>
               <li class="dropdown">
@@ -80,6 +80,9 @@
                                             onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                             Logout
+                                        </a>
+                                         <a href="/delete">
+                                            Delete Account
                                         </a>
 
                                         <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
