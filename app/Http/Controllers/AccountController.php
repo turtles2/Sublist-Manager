@@ -18,6 +18,8 @@ use App\Contacts;
 
 use App\helpers;
 
+use Datatables;
+
 class AccountController extends Controller
 {
     
@@ -102,5 +104,18 @@ class AccountController extends Controller
         
         return redirect("/");
       
+    }
+    
+       public function viewaccount()
+    {
+         return view('account.view');
+    }
+    
+       public function viewaccountdata()
+    {
+        
+         $userid = Auth::user()->id;
+        
+         return Datatables::of(Accounts::where('user_id',"$userid"))->make(true);
     }
 }

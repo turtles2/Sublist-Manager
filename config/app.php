@@ -179,6 +179,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Weidner\Goutte\GoutteServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Yajra\Datatables\DatatablesServiceProvider::class,
     ],
 
     /*

@@ -12,13 +12,15 @@
 
     <!-- Styles -->
     <link href="/css/app.css" rel="stylesheet">
-
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
     <!-- Scripts -->
     <script>
         window.Laravel = <?php echo json_encode([
             'csrfToken' => csrf_token(),
         ]); ?>
     </script>
+
+        
 </head>
 <body>
     <div id="app">
@@ -50,6 +52,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account Management<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/newaccount">Add New Sublist Account</a></li>
+             <li><a href="/viewaccount">View Sublist Account's</a></li>
           </ul>
         </li>
               <li class="dropdown">
@@ -102,5 +105,8 @@
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
+    <script src="http://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+       
+    @yield('script')
 </body>
 </html>

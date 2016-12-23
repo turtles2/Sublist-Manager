@@ -31,6 +31,8 @@ Route::post('/delete', 'HomeController@storedelete');
 // Account Management Routes
 Route::get('/newaccount', 'AccountController@newaccount');
 Route::post('/newaccount', 'AccountController@storenewaccount');
+Route::get('/viewaccount', 'AccountController@viewaccount');
+Route::get('/data/viewaccount', 'AccountController@viewaccountdata');
 // Schedule Management Routes
 Route::get('/newschedule', 'ScheduleController@newschedule');
 Route::post('/newschedule', 'ScheduleController@storenewschedule');
