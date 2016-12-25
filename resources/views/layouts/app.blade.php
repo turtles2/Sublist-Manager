@@ -53,6 +53,7 @@
           <ul class="dropdown-menu">
             <li><a href="/newaccount">Add New Sublist Account</a></li>
              <li><a href="/viewaccount">View Sublist Account's</a></li>
+                   <li><a href="/viewcontacts">View Sublist Contact's</a></li>
           </ul>
         </li>
               <li class="dropdown">
@@ -84,6 +85,7 @@
                                                      document.getElementById('logout-form').submit();">
                                             Logout
                                         </a>
+      
                                          <a href="/delete">
                                             Delete Account
                                         </a>

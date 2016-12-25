@@ -33,6 +33,8 @@ Route::get('/newaccount', 'AccountController@newaccount');
 Route::post('/newaccount', 'AccountController@storenewaccount');
 Route::get('/viewaccount', 'AccountController@viewaccount');
 Route::get('/data/viewaccount', 'AccountController@viewaccountdata');
+Route::get('/viewcontacts', 'AccountController@viewcontacts');
+Route::get('/data/viewcontacts', 'AccountController@viewcontactsdata');
 // Schedule Management Routes
 Route::get('/newschedule', 'ScheduleController@newschedule');
 Route::post('/newschedule', 'ScheduleController@storenewschedule');

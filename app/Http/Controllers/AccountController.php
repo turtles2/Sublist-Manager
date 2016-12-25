@@ -20,6 +20,8 @@ use App\helpers;
 
 use Datatables;
 
+use App\User;
+
 class AccountController extends Controller
 {
     
@@ -117,5 +119,46 @@ class AccountController extends Controller
          $userid = Auth::user()->id;
         
          return Datatables::of(Accounts::where('user_id',"$userid"))->make(true);
+    }
+    
+     public function viewcontacts()
+    {
+         return view('account.viewcontacts');
+    }
+    
+    
+       public function viewcontactsdata()
+    {
+        
+         $userid = Auth::user()->id;
+        
+         $accounts = Accounts::where('user_id',"$userid")->get();
+         
+         $user_contacts = array();
+         
+         foreach($accounts as $account){
+             
+             $contacts = $account->Contacts()->get();
+             
+             foreach($contacts as $contact){
+                 
+                 if($contact['manager'] == true){
+                     
+                     $contact['manager'] = 'Yes';
+                     
+                 }elseif($contact['manager'] == false){
+                     
+                     $contact['manager'] = 'No';
+                     
+                 }
+ 
+                 array_push($user_contacts, $contact);
+                 
+             }
+         }
+         
+         $user_contacts = collect($user_contacts);
+         
+         return Datatables::of($user_contacts)->make(true);
     }
 }
