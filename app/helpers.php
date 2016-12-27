@@ -15,6 +15,8 @@ use App\Accounts;
 
 use App\User;
 
+use Illuminate\Support\Facades\Notification;
+
 class helpers
 {
    
@@ -330,6 +332,8 @@ class helpers
                  $created = Carbon::parse($shift['created_at']);
                  
                  if($current->lte($created)){
+                    
+                    echo 'Test';
                     
                     if($user['auto_email'] == true){
                     
