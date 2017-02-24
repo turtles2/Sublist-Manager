@@ -331,9 +331,9 @@ class helpers
                      
                  $created = Carbon::parse($shift['created_at']);
                  
+                 // may have issuse due to timezones due to carbon underlying way of comparing time
+                 
                  if($current->lte($created)){
-                    
-                    echo 'Test';
                     
                     if($user['auto_email'] == true){
                     
