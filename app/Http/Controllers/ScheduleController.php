@@ -28,6 +28,8 @@ use Google_Service_Calendar;
 
 use Google_Service_Calendar_Event;
 
+use App\helpers;
+
 class ScheduleController extends Controller
 {
      public function __construct()
@@ -317,7 +319,7 @@ class ScheduleController extends Controller
                 Shifts::firstOrCreate([
                      'starts' => $shift['start'],
                      'ends' => $shift['end'],
-                     'code' => 0,
+                     'code' => 0, // Due to import type
                      'worker' => $worker['id'],
                      ]);
             
@@ -399,19 +401,9 @@ class ScheduleController extends Controller
                     
             foreach($shifts as $shift){
                 
-                if($shift->code == 0 or $shift->code == 3){
-                    
-                    $event = 'Lifeguarding Shift';
-                    
-                }elseif($shift->code == 1){
-                    
-                    $event = 'Swim Instructor Shift';
-                    
-                }else{
-                    
-                    $event = 'Shift';
-                    
-                }
+                $event = helpers::job_name($shift->code);
+                
+                $event = $event . " Shift";
                 
                 $start = Carbon::parse($shift->starts);
                 
@@ -452,19 +444,9 @@ class ScheduleController extends Controller
                     
             foreach($shifts as $shift){
                 
-                if($shift->code == 0 or $shift->code == 3){
-                    
-                    $event = 'Lifeguarding Shift';
-                    
-                }elseif($shift->code == 1){
-                    
-                    $event = 'Swim Instructor Shift';
-                    
-                }else{
-                    
-                    $event = 'Shift';
-                    
-                }
+                $event = helpers::job_name($shift->code);
+                
+                $event = $event . " Shift";
                 
                 $start = Carbon::parse($shift->starts);
                 
@@ -504,19 +486,9 @@ class ScheduleController extends Controller
                     
             foreach($shifts as $shift){
                 
-                if($shift->code == 0 or $shift->code == 3){
-                    
-                    $event = 'Lifeguarding Shift';
-                    
-                }elseif($shift->code == 1){
-                    
-                    $event = 'Swim Instructor Shift';
-                    
-                }else{
-                    
-                    $event = 'Shift';
-                    
-                }
+                $event = helpers::job_name($shift->code);
+                
+                $event = $event . " Shift";
                 
                 $start = Carbon::parse($shift->starts);
                 
@@ -554,19 +526,9 @@ class ScheduleController extends Controller
                     
             foreach($shifts as $shift){
                 
-                if($shift->code == 0 or $shift->code == 3){
-                    
-                    $event = 'Lifeguarding Shift';
-                    
-                }elseif($shift->code == 1){
-                    
-                    $event = 'Swim Instructor Shift';
-                    
-                }else{
-                    
-                    $event = 'Shift';
-                    
-                }
+                $event = helpers::job_name($shift->code);
+                
+                $event = $event . " Shift";
                 
                 $start = Carbon::parse($shift->starts);
                 

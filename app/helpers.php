@@ -468,6 +468,31 @@ class helpers
 		   
     }
     
+    	public static function job_name($code)
+    {
+       // At some point this will make a DB call instead of being hard coded
+       // Input a number representing a shift
+       // Output a human readable name for the shift or the number if a name could not be found
+       
+         if($code == 0 or $code == 3){
+                
+                $job_name = 'Lifegurad';
+                
+            }elseif($code == 1){
+                
+                 $job_name = 'Swim Instructor';
+                
+            }else{
+                
+                $job_name = $code;
+                
+            }
+ 
+       return $job_name;
+
+       
+    }
+    
 }
 
 ?>

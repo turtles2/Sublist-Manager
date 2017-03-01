@@ -16,6 +16,8 @@ use Carbon\Carbon;
 
 use Auth;
 
+use App\helpers;
+
 class Shift_Controller extends Controller
 {
        public function __construct()
@@ -52,21 +54,7 @@ class Shift_Controller extends Controller
             
             $shift['posted'] = $row['posted'];
             
-            if($row['code'] == 0 or $row['code'] == 3){
-                
-                $shift['type'] = 'Lifegurad';
-                
-            }elseif($row['code'] == 1){
-                
-                  $shift['type'] = 'Swim Instructor';
-                
-            }else{
-                
-                $shift['type'] == $row['code'];
-                
-            }
-            
-            
+            $shift['type'] = helpers::job_name($row['code']);
             
             array_push($openshifts, $shift);
             
@@ -136,21 +124,7 @@ class Shift_Controller extends Controller
             $shift['starts'] = $start->toDayDateTimeString();
             $shift['ends'] = $end->toDayDateTimeString();
             
-            if($row['code'] == 0 or $row['code'] == 3){
-                
-                $shift['type'] = 'Lifegurad';
-                
-            }elseif($row['code'] == 1){
-                
-                  $shift['type'] = 'Swim Instructor';
-                
-            }else{
-                
-                $shift['type'] == $row['code'];
-                
-            }
-            
-            
+            $shift['type'] = helpers::job_name($row['code']);
             
             array_push($openshifts, $shift);
             

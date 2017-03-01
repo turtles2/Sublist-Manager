@@ -11,6 +11,8 @@ use App\Contacts;
 
 use Carbon\Carbon;
 
+use App\helpers;
+
 class NewShift extends Notification
 {
     use Queueable;
@@ -63,19 +65,9 @@ class NewShift extends Notification
         
         $ends = $ends->toDayDateTimeString();
         
-        if($code == 0 or $code == 3){
-            
-            $type = "Lifeguarding Shift";
-            
-        }elseif($code == 1){
-            
-            $type = "Swim Instructor Shift";
-            
-        }else{
-            
-            $type = $code . 'Shift';
-            
-        }
+        $type = helpers::job_name($shift->code);
+                
+        $type = $type . " Shift";
         
         $message = $poster['fname'] .' '. $poster['lname'] . ' has posted a ' . $type . ' on Sublist ' . 'starting at ' . $starts . ' and ending at ' . $ends;
         
