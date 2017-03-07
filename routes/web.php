@@ -46,3 +46,6 @@ Route::get('/viewopenshift', 'Shift_Controller@viewopen');
 Route::get('/data/viewopenshift', 'Shift_Controller@viewopendata');
 Route::get('/viewcovershift', 'Shift_Controller@viewcover');
 Route::get('/data/viewcovershift', 'Shift_Controller@viewcoverdata');
+Route::get('/data/viewworking/{start}/{end}/{type}', 'Shift_Controller@viewworkingdata');
+Route::get('/viewworkingshift', 'Shift_Controller@viewworking');
+Route::post('/viewworkingshift', 'Shift_Controller@viewworkingbuild');
