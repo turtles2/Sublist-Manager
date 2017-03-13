@@ -65,7 +65,7 @@ class NewShift extends Notification
         
         $ends = $ends->toDayDateTimeString();
         
-        $type = helpers::job_name($shift->code);
+        $type = helpers::job_name($code);
                 
         $type = $type . " Shift";
         
