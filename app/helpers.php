@@ -331,15 +331,17 @@ class helpers
                      
                  $created = Carbon::parse($shift['created_at']);
                  
-                 // may have issuse due to timezones due to carbon underlying way of comparing time
-                 
-                 if($current->lte($created)){
+
+                 if($shift['email'] == false){
                     
                     if($user['auto_email'] == true){
                     
                        Notification::send($user, new NewShift($shift));
                     
                     }
+                    
+                    $shift->email = true;
+                    $shift->save;
                     
                  }
                      
