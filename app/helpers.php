@@ -340,8 +340,11 @@ class helpers
                     
                     }
                     
-                    $shift->email = true;
-                    $shift->save;
+                   $update = Sub_Shifts::find($shift['id']);
+                   
+                   $update->email = true;
+                   
+                   $update->save();
                     
                  }
                      
