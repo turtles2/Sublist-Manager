@@ -20,7 +20,7 @@
         ]); ?>
     </script>
 
-        
+
 </head>
 <body>
     <div id="app">
@@ -46,7 +46,7 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="nav navbar-nav">
                         @if (Auth::guest())
-                          
+
                         @else
                             <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account Management<span class="caret"></span></a>
@@ -71,6 +71,12 @@
             <li><a href="/viewcovershift">View Shifts Your Covering</a></li>
           </ul>
         </li>
+        <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="/newloc">Add new Location</a></li>
+        </ul>
+      </li>
                        @endif
                     </ul>
 
@@ -93,7 +99,7 @@
                                                      document.getElementById('logout-form').submit();">
                                             Logout
                                         </a>
-      
+
                                          <a href="/delete">
                                             Delete Account
                                         </a>
@@ -116,7 +122,7 @@
     <!-- Scripts -->
     <script src="/js/app.js"></script>
     <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-       
+
     @yield('script')
 </body>
 </html>

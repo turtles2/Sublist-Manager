@@ -49,3 +49,6 @@ Route::get('/data/viewcovershift', 'Shift_Controller@viewcoverdata');
 Route::get('/data/viewworking/{start}/{end}/{type}', 'Shift_Controller@viewworkingdata');
 Route::get('/viewworkingshift', 'Shift_Controller@viewworking');
 Route::post('/viewworkingshift', 'Shift_Controller@viewworkingbuild');
+// Setting Routes
+Route::get('/newloc','Settings_Controller@newlocation');
+Route::post('/newloc','Settings_Controller@storelocation');
