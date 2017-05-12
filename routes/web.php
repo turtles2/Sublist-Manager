@@ -41,6 +41,8 @@ Route::post('/newschedule', 'ScheduleController@storenewschedule');
 Route::get('/syncgoogle', 'ScheduleController@syncgoogle');
 Route::post('/syncgoogle', 'ScheduleController@redirectToProvider');
 Route::get('/google', 'ScheduleController@handleProviderCallback');
+Route::get('/viewweek', 'ScheduleController@viewweek');
+Route::get('/data/viewweek', 'ScheduleController@viewweekdata');
 // Shift Management Routes
 Route::get('/viewopenshift', 'Shift_Controller@viewopen');
 Route::get('/data/viewopenshift', 'Shift_Controller@viewopendata');

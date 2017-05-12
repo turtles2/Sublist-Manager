@@ -61,6 +61,7 @@
           <ul class="dropdown-menu">
             <li><a href="/newschedule">Add New Schedule</a></li>
             <li><a href="/syncgoogle">Sync with Google Calendar</a></li>
+            <li><a href="/viewweek">View Week's Schedule</a></li>
           </ul>
         </li>
           <li class="dropdown">
