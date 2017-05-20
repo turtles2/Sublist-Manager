@@ -54,3 +54,4 @@ Route::post('/viewworkingshift', 'Shift_Controller@viewworkingbuild');
 // Setting Routes
 Route::get('/newloc','Settings_Controller@newlocation');
 Route::post('/newloc','Settings_Controller@storelocation');
+Route::get('/newjob','Settings_Controller@newjob');
