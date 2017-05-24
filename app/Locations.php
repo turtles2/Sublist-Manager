@@ -12,7 +12,8 @@ class Locations extends Model
         'name','address','city','state','zip'
    ];
 
-   public function jobs(){
+   public function jobs()
+   {
 
        return $this->hasMany('App\Job_Codes', 'location', 'id');
 
