@@ -11,4 +11,10 @@ class Locations extends Model
     protected $fillable = [
         'name','address','city','state','zip'
    ];
+
+   public function jobs(){
+
+       return $this->hasMany('App\Job_Codes', 'location', 'id');
+
+   }
 }

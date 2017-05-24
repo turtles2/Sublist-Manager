@@ -55,3 +55,4 @@ Route::post('/viewworkingshift', 'Shift_Controller@viewworkingbuild');
 Route::get('/newloc','Settings_Controller@newlocation');
 Route::post('/newloc','Settings_Controller@storelocation');
 Route::get('/newjob','Settings_Controller@newjob');
+Route::post('/newjob','Settings_Controller@storejob');
