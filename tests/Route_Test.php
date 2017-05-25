@@ -15,6 +15,5 @@ class Route_Test extends TestCase
      {
          $this->visit('/')
               ->see('Sublist Manager')
-              ->dontSee('Laravel');
      }
 }
