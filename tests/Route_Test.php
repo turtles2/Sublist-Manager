@@ -14,6 +14,6 @@ class Route_Test extends TestCase
      public function test_root()
      {
          $this->visit('/')
-              ->see('Sublist Manager')
+              ->see('Sublist Manager');
      }
 }
