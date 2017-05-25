@@ -4,16 +4,17 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class ExampleTest extends TestCase
+class Route_Test extends TestCase
 {
     /**
-     * A basic functional test example.
+     * A basic test example.
      *
      * @return void
      */
-    public function testBasicExample()
-    {
-        $this->visit('/')
-             ->see('Laravel');
-    }
+     public function test_root()
+     {
+         $this->visit('/')
+              ->see('Sublist Manager')
+              ->dontSee('Laravel');
+     }
 }
