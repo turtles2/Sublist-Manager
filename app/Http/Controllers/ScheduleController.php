@@ -586,6 +586,10 @@ class ScheduleController extends Controller
     {
         // initialize variables
 
+        Carbon::setWeekStartsAt(Carbon::SUNDAY);
+
+        Carbon::setWeekEndsAt(Carbon::SATURDAY);
+
         $shifts = array();
 
         $total = 0; // not needed for PHP but good habit
@@ -595,7 +599,7 @@ class ScheduleController extends Controller
         // get the start and end of the week to find shifts
 
         $week_start = $current->startOfWeek()->toDateTimeString();
-
+        
         $week_end = $current->endOfWeek()->toDateTimeString();
 
         $userid = Auth::user()->id;
